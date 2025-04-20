@@ -1052,7 +1052,7 @@
                                 <td>${session.startTime}</td>
                                 <td>${session.lastActivity}</td>
                                 <td>
-                                    <button class="btn btn-danger" onclick="terminateSession(${session.userId})">终止会话</button>
+                                    <button class="btn btn-danger" onclick="terminateSession('${session.userId}')">终止会话</button>
                                 </td>
                             </tr>
                         `;
@@ -1075,7 +1075,7 @@
                         <td>${new Date(new Date().getTime() - 3600000).toLocaleString()}</td>
                         <td>${new Date().toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-danger" onclick="terminateSession(123456789)">终止会话</button>
+                            <button class="btn btn-danger" onclick="terminateSession('123456789')">终止会话</button>
                         </td>
                     </tr>
                     <tr>
@@ -1085,7 +1085,7 @@
                         <td>${new Date(new Date().getTime() - 7200000).toLocaleString()}</td>
                         <td>${new Date(new Date().getTime() - 1800000).toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-danger" onclick="terminateSession(987654321)">终止会话</button>
+                            <button class="btn btn-danger" onclick="terminateSession('987654321')">终止会话</button>
                         </td>
                     </tr>
                 `;
@@ -1335,7 +1335,9 @@
                 }
                 
                 log(`终止会话: ${userId}`);
-                await makeRequest('terminateSession', { user_id: userId });
+                // 确认userId不为空
+                console.log("要终止的用户ID:", userId);
+                await makeRequest('terminateSession', { userId: userId });
                 
                 alert('会话已终止');
                 loadSessions();
