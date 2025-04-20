@@ -1335,7 +1335,7 @@
                 }
                 
                 log(`终止会话: ${userId}`);
-                await makeRequest('terminateSession', { userId });
+                await makeRequest('terminateSession', { user_id: userId });
                 
                 alert('会话已终止');
                 loadSessions();
