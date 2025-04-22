@@ -27,6 +27,16 @@
             z-index: 100;
         }
 
+        .sidebar-title {
+            padding: 0 20px 20px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid #4a5c60;
+            margin-bottom: 10px;
+        }
+
         .menu-item {
             padding: 15px 20px;
             cursor: pointer;
@@ -170,6 +180,21 @@
             font-size: 24px;
             font-weight: 500;
             color: #2d3436;
+        }
+
+        /* 添加系统卡片样式 */
+        .system-card {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .button-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
 
         /* 表单样式 */
@@ -348,6 +373,7 @@
 <body>
     <!-- 左侧菜单 -->
     <div class="sidebar">
+        <div class="sidebar-title">Telegram验证机器人后台管理系统</div>
         <div class="menu-item active" onclick="switchTab('dashboard')">
             <i class="fas fa-tachometer-alt"></i> <span>仪表盘</span>
         </div>
@@ -376,7 +402,7 @@
 
     <!-- 顶部导航栏 -->
     <div class="top-nav">
-        <h2>Telegram验证机器人后台管理系统</h2>
+        <div></div>
         <div class="user-info">
             <div class="user-avatar">A</div>
             <span>管理员</span>
@@ -392,10 +418,13 @@
             <!-- 机器人状态 -->
             <div class="card">
                 <h3 class="card-title">机器人状态</h3>
-                <div>
-                    <span class="status-indicator status-online" id="bot-status-indicator"></span>
-                    <span id="bot-status">加载中...</span>
-                    <button class="btn btn-primary" style="float: right;" onclick="confirmRestart()">重启机器人</button>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span class="status-indicator" id="bot-status-indicator"></span>
+                    <span id="bot-status" class="tag">加载中...</span>
+                </div>
+                <div class="dashboard-actions" style="text-align: right; margin-top: 10px;">
+                    <button class="btn btn-warning" onclick="confirmRestart()">重启机器人</button>
+                    <button class="btn btn-danger" onclick="confirmShutdown()">关闭机器人</button>
                 </div>
             </div>
             
@@ -646,16 +675,15 @@
     </div>
 </div>
     
-    <!-- 重启确认模态框 -->
+    <!-- 重启机器人确认模态框 -->
     <div id="restart-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">确认重启</h3>
-                <button class="close-btn" onclick="closeRestartModal()">&times;</button>
+            <h3>确认重启机器人</h3>
+            <p>您确定要重启机器人吗？正在进行中的验证将会中断。</p>
+            <div class="button-group">
+                <button class="btn btn-danger" onclick="restartBot()">确认重启</button>
+                <button class="btn btn-default" onclick="closeRestartModal()">取消</button>
             </div>
-            <p>确定要重启机器人吗？这将断开所有当前会话。</p>
-            <button class="btn btn-danger" onclick="restartBot()">确认重启</button>
-            <button class="btn btn-primary" onclick="closeRestartModal()">取消</button>
         </div>
     </div>
 
@@ -682,6 +710,18 @@
                 <button type="submit" class="btn btn-primary">修改密码</button>
                 <button type="button" class="btn btn-secondary" onclick="closeChangePasswordModal()">取消</button>
             </form>
+        </div>
+    </div>
+
+    <!-- 关闭机器人确认模态框 -->
+    <div id="shutdown-modal" class="modal">
+        <div class="modal-content">
+            <h3>确认关闭机器人</h3>
+            <p>您确定要关闭机器人吗？所有正在进行中的验证将会中断，机器人将停止运行。</p>
+            <div class="button-group">
+                <button class="btn btn-danger" onclick="shutdownBot()">确认关闭</button>
+                <button class="btn btn-default" onclick="closeShutdownModal()">取消</button>
+            </div>
         </div>
     </div>
 
@@ -718,8 +758,8 @@
         
         // 配置
         const CONFIG = {
-            API_URL: 'https://lbg43.github.io/htgl2/',  // 将在下面根据不同情况设置
-            WORKER_URL: 'https://htgl2.pages.dev/' // 将在下面设置
+            API_URL: '',  // 将在下面根据不同情况设置
+            WORKER_URL: '' // 将在下面设置
         };
         
         // 获取本地存储的服务器地址
@@ -1052,7 +1092,7 @@
                                 <td>${session.startTime}</td>
                                 <td>${session.lastActivity}</td>
                                 <td>
-                                    <button class="btn btn-danger" onclick="terminateSession('${session.userId}')">终止会话</button>
+                                    <button class="btn btn-danger" onclick="terminateSession(${session.userId})">终止会话</button>
                                 </td>
                             </tr>
                         `;
@@ -1075,7 +1115,7 @@
                         <td>${new Date(new Date().getTime() - 3600000).toLocaleString()}</td>
                         <td>${new Date().toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-danger" onclick="terminateSession('123456789')">终止会话</button>
+                            <button class="btn btn-danger" onclick="terminateSession(123456789)">终止会话</button>
                         </td>
                     </tr>
                     <tr>
@@ -1085,7 +1125,7 @@
                         <td>${new Date(new Date().getTime() - 7200000).toLocaleString()}</td>
                         <td>${new Date(new Date().getTime() - 1800000).toLocaleString()}</td>
                         <td>
-                            <button class="btn btn-danger" onclick="terminateSession('987654321')">终止会话</button>
+                            <button class="btn btn-danger" onclick="terminateSession(987654321)">终止会话</button>
                         </td>
                     </tr>
                 `;
@@ -1251,7 +1291,7 @@
                 
                 log(`保存用户备注: ${currentUserId}`);
                 await makeRequest('saveUserNotes', { 
-                    userId: currentUserId, 
+                    user_id: currentUserId,  // 将userId改为user_id
                     notes: notes 
                 });
                 
@@ -1273,11 +1313,13 @@
                 }
                 
                 log(`重置用户验证状态: ${userId}`);
-                // 修改这里，将userId改为user_id
                 await makeRequest('resetUserVerification', { user_id: userId });
                 
                 alert('用户验证状态已重置');
+                
+                // 更彻底地刷新数据 - 不仅刷新用户列表，还刷新仪表盘数据
                 loadUsers();
+                loadDashboardData(); 
                 
                 // 如果是从用户详情模态框调用的，则关闭模态框
                 if (userId === currentUserId && document.getElementById('user-detail-modal').style.display === 'block') {
@@ -1297,11 +1339,11 @@
                 }
                 
                 log(`删除用户: ${userId}`);
-                // 修改这里，将userId改为user_id
                 await makeRequest('deleteUser', { user_id: userId });
                 
                 alert('用户已删除');
                 loadUsers();
+                loadDashboardData(); // 添加这行以刷新仪表盘数据
                 
                 // 如果是从用户详情模态框调用的，则关闭模态框
                 if (userId === currentUserId && document.getElementById('user-detail-modal').style.display === 'block') {
@@ -1335,9 +1377,7 @@
                 }
                 
                 log(`终止会话: ${userId}`);
-                // 确认userId不为空
-                console.log("要终止的用户ID:", userId);
-                await makeRequest('terminateSession', { userId: userId });
+                await makeRequest('terminateSession', { user_id: userId });
                 
                 alert('会话已终止');
                 loadSessions();
@@ -1710,6 +1750,45 @@
             } catch (error) {
                 console.error('加载API设置失败:', error);
                 log(`加载API设置失败: ${error.message}`);
+            }
+        }
+
+        // 确认关闭机器人
+        function confirmShutdown() {
+            document.getElementById('shutdown-modal').style.display = 'block';
+        }
+
+        // 关闭关闭机器人模态框
+        function closeShutdownModal() {
+            document.getElementById('shutdown-modal').style.display = 'none';
+        }
+
+        // 关闭机器人
+        async function shutdownBot() {
+            try {
+                console.log('正在关闭机器人...');
+                const result = await makeRequest('shutdownBot');
+                
+                if (result.success) {
+                    console.log('机器人关闭成功:', result);
+                    closeShutdownModal();
+                    alert('机器人已成功关闭: ' + result.message);
+                    
+                    // 等待3秒后刷新页面
+                    setTimeout(() => {
+                        console.log('关闭后自动刷新页面');
+                        loadDashboardData(); // 刷新仪表盘数据以更新机器人状态
+                    }, 3000);
+                } else {
+                    console.error('机器人关闭失败:', result.error);
+                    closeShutdownModal();
+                    alert(`关闭失败: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('关闭机器人请求失败:', error);
+                log(`关闭机器人失败: ${error.message}`);
+                closeShutdownModal();
+                alert(`操作失败: ${error.message}`);
             }
         }
     </script>
